@@ -5,33 +5,33 @@ library(reshape2)
 
 
 # STEP 1: Fetch dataset from web
-rawDataDir <- "./rawData"
-rawDataUrl <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
-rawDataFilename <- "rawData.zip"
-rawDataDFn <- paste(rawDataDir, "/", "rawData.zip", sep = "")
-dataDir <- "./data"
+raw_Data_Dir <- "./rawData"
+raw_Data_Url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
+raw_Data_Filename <- "rawData.zip"
+raw_Data_DFn <- paste(raw_Data_Dir, "/", "rawData.zip", sep = "")
+data_Dir <- "./data"
 
-if (!file.exists(rawDataDir)) {
-    dir.create(rawDataDir)
-    download.file(url = rawDataUrl, destfile = rawDataDFn)
+if (!file.exists(raw_Data_Dir)) {
+    dir.create(raw_Data_Dir)
+    download.file(url = raw_Data_Url, destfile = raw_Data_DFn)
 }
-if (!file.exists(dataDir)) {
-    dir.create(dataDir)
-    unzip(zipfile = rawDataDFn, exdir = dataDir)
+if (!file.exists(data_Dir)) {
+    dir.create(data_Dir)
+    unzip(zipfile = raw_Data_DFn, exdir = data_Dir)
 }
 
 
 # STEP 2: Merge {train, test} data set
 # refer: http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones
 # train data
-x_train <- read.table(paste(sep = "", dataDir, "/UCI HAR Dataset/train/X_train.txt"))
-y_train <- read.table(paste(sep = "", dataDir, "/UCI HAR Dataset/train/Y_train.txt"))
-s_train <- read.table(paste(sep = "", dataDir, "/UCI HAR Dataset/train/subject_train.txt"))
+x_train <- read.table(paste(sep = "", data_Dir, "/UCI HAR Dataset/train/X_train.txt"))
+y_train <- read.table(paste(sep = "", data_Dir, "/UCI HAR Dataset/train/Y_train.txt"))
+s_train <- read.table(paste(sep = "", data_Dir, "/UCI HAR Dataset/train/subject_train.txt"))
 
 # test data
-x_test <- read.table(paste(sep = "", dataDir, "/UCI HAR Dataset/test/X_test.txt"))
-y_test <- read.table(paste(sep = "", dataDir, "/UCI HAR Dataset/test/Y_test.txt"))
-s_test <- read.table(paste(sep = "", dataDir, "/UCI HAR Dataset/test/subject_test.txt"))
+x_test <- read.table(paste(sep = "", data_Dir, "/UCI HAR Dataset/test/X_test.txt"))
+y_test <- read.table(paste(sep = "", data_Dir, "/UCI HAR Dataset/test/Y_test.txt"))
+s_test <- read.table(paste(sep = "", data_Dir, "/UCI HAR Dataset/test/subject_test.txt"))
 
 # merge {train, test} data
 x_data <- rbind(x_train, x_test)
@@ -41,18 +41,18 @@ s_data <- rbind(s_train, s_test)
 
 #3. load feature & activity info
 # feature info
-feature <- read.table(paste(sep = "", dataDir, "/UCI HAR Dataset/features.txt"))
+feature <- read.table(paste(sep = "", data_Dir, "/UCI HAR Dataset/features.txt"))
 
 # activity labels
-a_label <- read.table(paste(sep = "", dataDir, "/UCI HAR Dataset/activity_labels.txt"))
+a_label <- read.table(paste(sep = "", data_Dir, "/UCI HAR Dataset/activity_labels.txt"))
 a_label[,2] <- as.character(a_label[,2])
 
 # STEP 3: Extract feature (cols & name)s named 'mean, std'
-selectedCols <- grep("-(mean|std).*", as.character(feature[,2]))
-selectedColNames <- feature[selectedCols, 2]
-selectedColNames <- gsub("-mean", "Mean", selectedColNames)
-selectedColNames <- gsub("-std", "Std", selectedColNames)
-selectedColNames <- gsub("[-()]", "", selectedColNames)
+selected_Cols <- grep("-(mean|std).*", as.character(feature[,2]))
+selected_Col_Names <- feature[selected_Cols, 2]
+selected_Col_Names <- gsub("-mean", "Mean", selected_Col_Names)
+selected_Col_Names <- gsub("-std", "Std", selected_Col_Names)
+selected_Col_Names <- gsub("[-()]", "", selected_Col_Names)
 
 
 # STEP 4: Extract data by cols & using descriptive name
@@ -65,7 +65,7 @@ allData$Subject <- as.factor(allData$Subject)
 
 
 # STEP 5. Generate tidy data set
-meltedData <- melt(allData, id = c("Subject", "Activity"))
-tidyData <- dcast(meltedData, Subject + Activity ~ variable, mean)
+melt_Data <- melt(allData, id = c("Subject", "Activity"))
+tidyData <- dcast(melt_dData, Subject + Activity ~ variable, mean)
 
 write.table(tidyData, "./tidy_dataset.txt", row.names = FALSE, quote = FALSE)
